@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * Implementation of hook_block_info().
+ */
+function resetpwd_block_info() {
+  $blocks['reset-pwd'] = array(
+    'info' => t('Password Reset Block'),
+  );
+  return $blocks;
+}
+
+/**
+ * Implementation of hook_block_view().
+ */
+function resetpwd_block_view($delta='') {
+  $block = array();
+  switch ($delta) {
+    case 'reset-pwd':
+      $block['subject'] = t('Password Reset Block');
+      $block['content'] = drupal_get_form('change_password_form');
+
+      break;
+  }
+  return $block;
+}
+
+
+function change_password_form($form, &$form_state) {
+
+  $form['pass'] = array(
+  '#type' => 'password',
+  '#title' => t('Password'),
+  '#maxlength' => 64,
+  '#required' => TRUE,
+  '#size' => 15,
+);
+  $form['resetpass'] = array(
+  '#type' => 'password_confirm',
+  '#title' => t('Confirm Password'),
+  '#size' => 25,
+);
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+	//'#validate'=>array('custom_user_validate_current_pass'),
+	'#submit' => array('resetpwd_form_submit'),
+
+  );
+
+  return $form;
+
+}
+
+ 
+function resetpwd_form_submit($form, &$form_state) {
+global $user;
+$account = $user;
+
+require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+
+if (!user_check_password($form_state['input']['pass'], $account)) {
+   form_set_error('current_pass', t("Your current password is missing or incorrect"));
+}else{
+	//$ency_pass = user_hash_password(trim($form_state['values']['resetpass']));
+     $ency_pass =trim($form_state['values']['resetpass']);
+	user_save($account, array('pass' => $ency_pass));
+	drupal_set_message(t('Your Password Is Success Changed.'));
+}
+   /*   
+  
+	    $desired_data = db_insert('passs_update')
+        ->fields (array('pass_up' => $form_state['values']['resetpass'],))
+		->condition('primarykey', 'primarykeyname')
+        ->execute();
+
+	*/
+	
+	
+}
+

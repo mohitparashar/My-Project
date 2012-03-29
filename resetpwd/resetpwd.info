@@ -1,0 +1,4 @@
+name = "Password Reset Block"
+description = "This is custom block for password reset."
+core = "7.x"
+package = "Custom Modules"
